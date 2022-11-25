@@ -9,6 +9,8 @@
 // [] is approx equal to ""
 // +[] = +"" = 0
 
+use clap::Parser;
+
 use std::collections::HashMap;
 use std::fs;
 use std::io::prelude::*;
@@ -161,15 +163,33 @@ fn build_char_map() -> HashMap<char, String> {
     map
 }
 
+// Simple program to greet a person
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+   // Name of the person to greet
+   #[arg(short, long)]
+   input: String,
+
+   // Number of times to greet
+   #[arg(short, long)]
+   output: String,
+}
+
 fn main() -> std::io::Result<()> {
     let map = build_char_map();
 
+    let args = Args::parse();
+
+    let input_path = args.input;
+    let output_path = args.output;
+    
     let input_code =
-        fs::read_to_string("./input.js").expect("Should have been able to read the file");
+        fs::read_to_string(input_path).expect("Should have been able to read the file");
 
     let output_code = compile(&map, &input_code);
 
-    let mut file = fs::File::create("./output.js")?;
+    let mut file = fs::File::create(output_path)?;
     file.write_all(output_code.as_bytes())
         .expect("Unsuccessful write?");
 
